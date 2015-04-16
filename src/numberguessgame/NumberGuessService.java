@@ -17,9 +17,9 @@ public class NumberGuessService {
     private int min;
     private int max;
     
-    public NumberGuessService(int min, int max){
-       this.min = min;
-       this.max = max;
+    public NumberGuessService(String min, String max)throws NumberFormatException{
+       this.min = Integer.parseInt(min);
+       this.max = Integer.parseInt(max);
        setNumber();
        
     }
@@ -28,12 +28,8 @@ public class NumberGuessService {
         randomNum = random.nextInt(max-min)+1+min;
     }
     
-    public NumberGuessResults guessNumber(String guess)throws  NumberFormatException{
+    public NumberGuessResults guessNumber(String guess) throws NumberFormatException{
         int guessNum = Integer.parseInt(guess);
-        
-        if(guessNum < min || guessNum > max){
-            throw new IllegalArgumentException();
-        }
         
         if(guessNum == randomNum){
             return NumberGuessResults.RIGHT;

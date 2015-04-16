@@ -5,6 +5,8 @@
  */
 package numberguessgame;
 
+//import edu.wctc.validator.strategy.*;
+import validatorutility.strategy.*;
 import javax.swing.JOptionPane;
 
 /**
@@ -13,21 +15,29 @@ import javax.swing.JOptionPane;
  */
 public class NumberGuessGUI extends javax.swing.JFrame {
     private NumberGuessService guesser;
-    private int min;
-    private int max;
+    private String min;
+    private String max;
+    private static final String RANGE_ERR_MSG = "Range Values must be Numbers";
     /**
      * Creates new form NumberGuessGUI
      */
     public NumberGuessGUI() {
-        initComponents();
-        String temp = JOptionPane.showInputDialog("Enter the low end of the range: ");
-        min = Integer.parseInt(temp);
-        lblMin.setText(temp);
-        temp = JOptionPane.showInputDialog("Enter the high end of the range: ");
-        max = Integer.parseInt(temp);
-        lblMax.setText(temp);
-        
-        guesser = new NumberGuessService(min,max);
+        initComponents();        
+        min = JOptionPane.showInputDialog("Enter the low end of the range: ");
+        lblMin.setText(min);
+        max = JOptionPane.showInputDialog("Enter the high end of the range: ");
+        lblMax.setText(max);
+         
+        try{
+            ((JTextFieldValidateable)txtGuess).setValidator(new NumbericRangeValidator(min,max));
+        }catch(NumberFormatException nfe){
+            JOptionPane.showMessageDialog(rootPane, RANGE_ERR_MSG);
+        }
+        try{
+            guesser = new NumberGuessService(min,max);
+        }catch(NumberFormatException nfe){
+            JOptionPane.showMessageDialog(rootPane, RANGE_ERR_MSG);
+        }
     }
 
     /**
@@ -40,7 +50,7 @@ public class NumberGuessGUI extends javax.swing.JFrame {
     private void initComponents() {
 
         lblRange = new javax.swing.JLabel();
-        txtGuess = new javax.swing.JTextField();
+        txtGuess = new validatorutility.strategy.JTextFieldValidateable(20);
         btnQuit = new javax.swing.JButton();
         btnGuess = new javax.swing.JButton();
         lblResults = new javax.swing.JLabel();
@@ -133,19 +143,23 @@ public class NumberGuessGUI extends javax.swing.JFrame {
         String number = txtGuess.getText();
         String results = "";
         
-        try{
-        switch(guesser.guessNumber(number)){
-            case RIGHT: results = "You guessed the number!";
-                guesser.setNumber();
-                break;
-            case LOW: results = "Too Low. Guess Again.";
-                break;
-            case HIGH: results = "Too High. Guess Again.";
+        if(((JTextFieldValidateable)txtGuess).isFieldValid()){
+            try{
+            switch(guesser.guessNumber(number)){
+                case RIGHT: results = "You guessed the number!";
+                    guesser.setNumber();
+                    break;
+                case LOW: results = "Too Low. Guess Again.";
+                    break;
+                case HIGH: results = "Too High. Guess Again.";
+            }
+            }catch(NumberFormatException nfe){
+                JOptionPane.showMessageDialog(rootPane, "Enter a numer.");
+            }
+            lblResults.setText(results);
+        }else{
+            JOptionPane.showMessageDialog(rootPane, "Please Provide a Value in the Range");
         }
-        }catch(IllegalArgumentException iae){
-            JOptionPane.showMessageDialog(rootPane, "Enter a Valid Number in the Range");
-        }
-        lblResults.setText(results);
     }//GEN-LAST:event_btnGuessActionPerformed
 
     private void btnQuitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuitActionPerformed
